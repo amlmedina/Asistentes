@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Race Capture Pro</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0f0f0f;
+    color: white;
+}
+
+.container {
+    max-width: 520px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* CAPTURA */
+.capture-box {
+    background: #1c1c1c;
+    padding: 20px;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+input {
+    width: 100%;
+    padding: 18px;
+    font-size: 28px;
+    border-radius: 14px;
+    border: none;
+    outline: none;
+    text-align: center;
+    background: #2a2a2a;
+    color: white;
+}
+
+input:focus {
+    box-shadow: 0 0 10px #3b82f6;
+}
+
+.feedback {
+    height: 20px;
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+.success { color: #10b981; }
+.error { color: #ef4444; }
+
+/* CARDS */
+.card {
+    background: #1c1c1c;
+    border-radius: 18px;
+    padding: 18px;
+    margin-top: 18px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.small {
+    font-size: 14px;
+    opacity: 0.6;
+}
+
+.big {
+    font-size: 36px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.blue { color: #3b82f6; }
+.purple { color: #8b5cf6; }
+.green { color: #10b981; }
+
+/* HISTORIAL */
+.history {
+    max-height: 220px;
+    overflow-y: auto;
+    margin-top: 10px;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #2a2a2a;
+    font-size: 15px;
+}
+
+.delete {
+    color: #ef4444;
+    cursor: pointer;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- INPUT PRINCIPAL -->
+<div class="capture-box">
+    <input type="number" id="dorsal" placeholder="Ingresa dorsal y ENTER" autofocus>
+    <div class="feedback" id="feedback"></div>
+</div>
+
+<!-- ESTIMACIÓN -->
+<div class="card">
+    <div class="small">Estimación Total</div>
+    <div class="big blue" id="estimacion">0</div>
+</div>
+
+<!-- MÉTRICAS -->
+<div class="card">
+    <div class="small">Registros</div>
+    <div class="big purple" id="muestra">0</div>
+
+    <div class="small" style="margin-top:12px;">Máximo observado</div>
+    <div class="big green" id="maximo">0</div>
+
+    <div class="small" style="margin-top:12px;">Margen error aprox</div>
+    <div id="error">—</div>
+</div>
+
+<!-- HISTORIAL -->
+<div class="card">
+    <div class="small">Historial (último arriba)</div>
+    <div class="history" id="historial"></div>
+</div>
+
+</div>
+
+<script>
+let registros = [];
+
+const input = document.getElementById("dorsal");
+const feedback = document.getElementById("feedback");
+
+input.addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        agregar();
+    }
+});
+
+function agregar() {
+    const valor = parseInt(input.value);
+
+    if (!isNaN(valor) && valor > 0) {
+
+        // Evitar duplicados
+        if (registros.includes(valor)) {
+            feedback.innerText = "Dorsal duplicado ignorado";
+            feedback.className = "feedback error";
+            input.value = "";
+            limpiarFeedback();
+            return;
+        }
+
+        registros.push(valor);
+
+        feedback.innerText = "Registrado ✔";
+        feedback.className = "feedback success";
+
+        input.value = "";
+        actualizar();
+        limpiarFeedback();
+    }
+}
+
+function limpiarFeedback() {
+    setTimeout(() => {
+        feedback.innerText = "";
+    }, 700);
+}
+
+function eliminar(index) {
+    registros.splice(index, 1);
+    actualizar();
+}
+
+function actualizar() {
+    const k = registros.length;
+
+    document.getElementById("muestra").innerText = k;
+
+    if (k === 0) {
+        document.getElementById("estimacion").innerText = 0;
+        document.getElementById("maximo").innerText = 0;
+        document.getElementById("error").innerText = "—";
+        actualizarHistorial();
+        return;
+    }
+
+    const m = Math.max(...registros);
+    const estimado = m + (m / k) - 1;
+    const errorAprox = 100 / k;
+
+    document.getElementById("estimacion").innerText = Math.round(estimado);
+    document.getElementById("maximo").innerText = m;
+    document.getElementById("error").innerText =
+        "±" + errorAprox.toFixed(2) + "%";
+
+    actualizarHistorial();
+}
+
+function actualizarHistorial() {
+    const div = document.getElementById("historial");
+    div.innerHTML = "";
+
+    // Mostrar último arriba
+    registros.slice().reverse().forEach((num, index) => {
+        div.innerHTML += `
+            <div class="history-item">
+                <span>${num}</span>
+                <span class="delete" onclick="eliminar(${registros.length - 1 - index})">✕</span>
+            </div>
+        `;
+    });
+}
+</script>
+
+</body>
+</html>
