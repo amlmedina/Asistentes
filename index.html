@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Race Capture Pro</title>
+<title>Race Capture Mobile</title>
 
 <style>
 * {
@@ -33,7 +33,7 @@ body {
 
 input {
     width: 100%;
-    padding: 18px;
+    padding: 20px;
     font-size: 28px;
     border-radius: 14px;
     border: none;
@@ -44,7 +44,7 @@ input {
 }
 
 input:focus {
-    box-shadow: 0 0 10px #3b82f6;
+    box-shadow: 0 0 12px #3b82f6;
 }
 
 .feedback {
@@ -109,7 +109,18 @@ input:focus {
 
 <!-- INPUT PRINCIPAL -->
 <div class="capture-box">
-    <input type="number" id="dorsal" placeholder="Ingresa dorsal y ENTER" autofocus>
+    <input 
+        type="text"
+        id="dorsal"
+        placeholder="Ingresa dorsal y ENTER"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+        autofocus
+    >
     <div class="feedback" id="feedback"></div>
 </div>
 
@@ -161,6 +172,7 @@ function agregar() {
             feedback.innerText = "Dorsal duplicado ignorado";
             feedback.className = "feedback error";
             input.value = "";
+            input.focus();
             limpiarFeedback();
             return;
         }
@@ -172,6 +184,7 @@ function agregar() {
 
         input.value = "";
         actualizar();
+        input.focus();
         limpiarFeedback();
     }
 }
@@ -216,7 +229,6 @@ function actualizarHistorial() {
     const div = document.getElementById("historial");
     div.innerHTML = "";
 
-    // Mostrar último arriba
     registros.slice().reverse().forEach((num, index) => {
         div.innerHTML += `
             <div class="history-item">
