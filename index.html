@@ -33,8 +33,8 @@ body {
 
 input {
     width: 100%;
-    padding: 20px;
-    font-size: 28px;
+    padding: 22px;
+    font-size: 32px;
     border-radius: 14px;
     border: none;
     outline: none;
@@ -44,13 +44,13 @@ input {
 }
 
 input:focus {
-    box-shadow: 0 0 12px #3b82f6;
+    box-shadow: 0 0 15px #3b82f6;
 }
 
 .feedback {
-    height: 20px;
+    height: 22px;
     margin-top: 8px;
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .success { color: #10b981; }
@@ -110,9 +110,9 @@ input:focus {
 <!-- INPUT PRINCIPAL -->
 <div class="capture-box">
     <input 
-        type="text"
+        type="tel"
         id="dorsal"
-        placeholder="Ingresa dorsal y ENTER"
+        placeholder="Ingresa dorsal"
         inputmode="numeric"
         pattern="[0-9]*"
         autocomplete="off"
@@ -162,15 +162,21 @@ input.addEventListener("keypress", function(e) {
     }
 });
 
+function vibrar() {
+    if (navigator.vibrate) {
+        navigator.vibrate(50);
+    }
+}
+
 function agregar() {
     const valor = parseInt(input.value);
 
     if (!isNaN(valor) && valor > 0) {
 
-        // Evitar duplicados
         if (registros.includes(valor)) {
-            feedback.innerText = "Dorsal duplicado ignorado";
+            feedback.innerText = "Duplicado ignorado";
             feedback.className = "feedback error";
+            vibrar();
             input.value = "";
             input.focus();
             limpiarFeedback();
@@ -178,6 +184,7 @@ function agregar() {
         }
 
         registros.push(valor);
+        vibrar();
 
         feedback.innerText = "Registrado ✔";
         feedback.className = "feedback success";
@@ -192,7 +199,7 @@ function agregar() {
 function limpiarFeedback() {
     setTimeout(() => {
         feedback.innerText = "";
-    }, 700);
+    }, 600);
 }
 
 function eliminar(index) {
