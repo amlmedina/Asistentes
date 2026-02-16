@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Race Capture</title>
+<title>Race Capture Pro</title>
 
 <style>
 * { box-sizing: border-box; }
@@ -46,7 +46,7 @@ input:focus {
     box-shadow: 0 0 15px #3b82f6;
 }
 
-/* BOTÓN GRANDE */
+/* BOTÓN */
 button {
     width: 100%;
     padding: 18px;
@@ -86,6 +86,7 @@ button:active {
 .small {
     font-size: 14px;
     opacity: 0.6;
+    margin-top: 10px;
 }
 
 .big {
@@ -97,6 +98,7 @@ button:active {
 .blue { color: #3b82f6; }
 .purple { color: #8b5cf6; }
 .green { color: #10b981; }
+.orange { color: #f59e0b; }
 
 /* HISTORIAL */
 .history {
@@ -154,11 +156,17 @@ button:active {
     <div class="small">Registros</div>
     <div class="big purple" id="muestra">0</div>
 
-    <div class="small" style="margin-top:12px;">Máximo observado</div>
+    <div class="small">Máximo observado</div>
     <div class="big green" id="maximo">0</div>
 
-    <div class="small" style="margin-top:12px;">Margen error aprox</div>
+    <div class="small">Margen error aprox</div>
     <div id="error">—</div>
+
+    <div class="small">Rango estimado</div>
+    <div id="rango">—</div>
+
+    <div class="small">Diferencia (máx - mín)</div>
+    <div class="orange" id="diferencia">—</div>
 </div>
 
 <!-- HISTORIAL -->
@@ -222,13 +230,14 @@ function eliminar(index) {
 
 function actualizar() {
     const k = registros.length;
-
     document.getElementById("muestra").innerText = k;
 
     if (k === 0) {
         document.getElementById("estimacion").innerText = 0;
         document.getElementById("maximo").innerText = 0;
         document.getElementById("error").innerText = "—";
+        document.getElementById("rango").innerText = "—";
+        document.getElementById("diferencia").innerText = "—";
         actualizarHistorial();
         return;
     }
@@ -237,10 +246,22 @@ function actualizar() {
     const estimado = m + (m / k) - 1;
     const errorAprox = 100 / k;
 
+    const margenDecimal = errorAprox / 100;
+    const minimo = estimado * (1 - margenDecimal);
+    const maximoEstimado = estimado * (1 + margenDecimal);
+    const diferencia = maximoEstimado - minimo;
+
     document.getElementById("estimacion").innerText = Math.round(estimado);
     document.getElementById("maximo").innerText = m;
+
     document.getElementById("error").innerText =
         "±" + errorAprox.toFixed(2) + "%";
+
+    document.getElementById("rango").innerText =
+        Math.round(minimo) + " – " + Math.round(maximoEstimado);
+
+    document.getElementById("diferencia").innerText =
+        Math.round(diferencia);
 
     actualizarHistorial();
 }
@@ -259,7 +280,6 @@ function actualizarHistorial() {
     });
 }
 </script>
-
 
 </body>
 </html>
